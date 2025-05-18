@@ -1,42 +1,132 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+/* Section Styles */
+*
+{
+  font-family: 'Poppins', sans-serif;
+}
+.hero-section,
+.about-section,
+.announcements-section,
+.contact-section {
+  height: 100vh;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-margin-top: 70px; /* Add space for fixed navbar */
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Text Styles */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+p {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
+/* Card Styles */
 .card {
-  padding: 2em;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
 }
 
-.read-the-docs {
-  color: #888;
+/* Button Styles */
+.btn-light {
+  padding: 0.75rem 2rem;
+  border-radius: 25px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+}
+
+.nav-link {
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+}
+
+
+/* Smooth Scrolling for Navigation Links */
+.nav-link[href^="#"] {
+  cursor: pointer;
+}
+
+
+/* Navbar Collapse */
+.navbar-collapse {
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #3498db;
+  background-color: #3498db;
+  
+}
+
+/* Navbar on Mobile */
+@media (max-width: 991.98px) {
+  .navbar-nav {
+    padding: 1rem 0;
+  }
+  
+  .nav-item {
+    margin: 0.5rem 0;
+  }
+  
+  .nav-link {
+    padding: 0.75rem 1rem !important;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Footer */
+footer {
+  position: relative;
+  bottom: 0;
+  width: 100%;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Custom Colors */
+:root {
+  --primary-color: #3498db;
+  --dark-blue: #2980b9;
+  --light-blue: #85c1e9;
+}
+
+/* Section Colors */
+.hero-section {
+  background-color: var(--primary-color);
+}
+
+.about-section {
+  background-color: var(--light-blue);
+}
+
+.announcements-section {
+  background-color: var(--primary-color);
+}
+
+.contact-section {
+  background-color: var(--light-blue);
+}
+
+/* Text Colors */
+.text-dark-blue {
+  color: var(--dark-blue) !important;
+}
+
+.bg-light-blue {
+  background-color: var(--light-blue) !important;
 }
