@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Card, Button, Container, Row, Col, Image, Modal, Pagination } from 'react-bootstrap';
 import Login from './components/Login';
 import Layout from './components/Layout';
 import SignUp from './components/SignUp';
@@ -22,12 +23,51 @@ import StaffDashboard from './staff/StaffDashboard';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './App.css'
+import './styles/announcements.css'
+import axios from 'axios';
 
 function App() {
   const navigate = useNavigate();
 
+  const [announcements, setAnnouncements] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const announcementsPerPage = 8;
+  const totalPages = Math.ceil(announcements.length / announcementsPerPage);
+
   const handleLoginClick = () => {
     navigate('/login');
+  };
+
+  const fetchAnnouncements = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/announcements');
+      setAnnouncements(response.data);
+    } catch (error) {
+      console.error('Error fetching announcements:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAnnouncements();
+  }, []);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastAnnouncement = currentPage * announcementsPerPage;
+  const indexOfFirstAnnouncement = indexOfLastAnnouncement - announcementsPerPage;
+  const currentAnnouncements = announcements.slice(indexOfFirstAnnouncement, indexOfLastAnnouncement);
+
+  const handleShowModal = (announcement) => {
+    setSelectedAnnouncement(announcement);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
   };
 
   return (
@@ -99,29 +139,132 @@ function App() {
               </section>
 
               {/* Third Section - Announcements */}
-              <section className="announcements-section vh-100 bg-primary d-flex align-items-center justify-content-center" id="announcements">
+              <section className="announcements-section bg-light py-5" id="announcements">
                 <div className="container">
                   <div className="row">
                     <div className="col-12">
-                      <h2 className="text-center mb-3 text-white">Announcements</h2>
-                      <div className="col-md-8 offset-md-2">
-                        <div className="card mb-3 bg-light-blue">
-                          <div className="card-body">
-                            <h5 className="card-title text-dark-blue">Guidance Services Schedule</h5>
-                            <p className="card-text text-dark-blue">Walk-in counseling sessions are available Monday to Friday, 8:00 AM - 5:00 PM.</p>
+                      <h2 className="text-center mb-4 text-dark-blue">Announcements</h2>
+                      <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+                        {currentAnnouncements.map((announcement) => (
+                          <div key={announcement._id} className="col">
+                            <Card className="bg-light border-1 shadow-sm h-100 announcement-card">
+                              <Card.Body className="d-flex flex-column">
+                                {announcement.image && (
+                                  <div className="mb-3">
+                                    <Image
+                                      src={`http://localhost:5000${announcement.image}`}
+                                      alt={announcement.title}
+                                      fluid
+                                      rounded
+                                      className="announcement-image"
+                                      style={{ 
+                                        maxHeight: '200px', 
+                                        width: '100%',
+                                        backgroundSize: 'cover',  
+                                        objectFit: 'cover', 
+                                        borderRadius: '8px' 
+                                      }}
+                                    />
+                                  </div>
+                                )}
+                                <Card.Title className="text-dark-blue mb-2 flex-grow-1">
+                                  {announcement.title}
+                                </Card.Title>
+                                <Card.Text className="text-dark-blue mb-3 flex-grow-1">
+                                {announcement.content.split(' ').slice(0, 30).join(' ') + '...'}
+                                </Card.Text>
+                                <div className="mt-auto">
+                                  <div className="d-flex justify-content-between align-items-center">
+                                    <small className="text-muted">
+                                      <i className="bi bi-calendar3 me-1"></i>
+                                      {new Date(announcement.createdAt).toLocaleDateString('en-US', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                      })}
+                                    </small>
+                                    <Button 
+                                      variant="btn btn-outline-primary" 
+                                      size="sm" 
+                                      onClick={() => handleShowModal(announcement)}
+                                    >
+                                      Read More
+                                    </Button>
+                                  </div>
+                                </div>
+                              </Card.Body>
+                            </Card>
                           </div>
-                        </div>
-                        <div className="card bg-light-blue">
-                          <div className="card-body">
-                            <h5 className="card-title text-dark-blue">Upcoming Workshops</h5>
-                            <p className="card-text text-dark-blue">Join our stress management workshop on May 25, 2025.</p>
-                          </div>
-                        </div>
+                        ))}
                       </div>
+                      
+                      {/* Pagination */}
+                      {totalPages > 1 && (
+                        <div className="d-flex justify-content-center mt-4">
+                          <Pagination>
+                            <Pagination.First 
+                              onClick={() => handlePageChange(1)} 
+                              disabled={currentPage === 1}
+                            />
+                            <Pagination.Prev 
+                              onClick={() => handlePageChange(currentPage - 1)} 
+                              disabled={currentPage === 1}
+                            />
+                            {Array.from({ length: totalPages }, (_, index) => (
+                              <Pagination.Item
+                                key={index + 1}
+                                active={currentPage === index + 1}
+                                onClick={() => handlePageChange(index + 1)}
+                              >
+                                {index + 1}
+                              </Pagination.Item>
+                            ))}
+                            <Pagination.Next 
+                              onClick={() => handlePageChange(currentPage + 1)} 
+                              disabled={currentPage === totalPages}
+                            />
+                            <Pagination.Last 
+                              onClick={() => handlePageChange(totalPages)} 
+                              disabled={currentPage === totalPages}
+                            />
+                          </Pagination>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
               </section>
+
+              {/* Announcement Modal */}
+              <Modal show={showModal} onHide={handleCloseModal} size="xl" >
+                <Modal.Body>
+                  <div className="text-center mb-4">
+                    {selectedAnnouncement?.image && (
+                      <Image
+                        src={`http://localhost:5000${selectedAnnouncement.image}`}
+                        fluid
+                        rounded
+                      />
+                    )}
+                  </div>
+                  <Modal.Title>{selectedAnnouncement?.title}</Modal.Title>
+                  <br />
+                  <p className="text-dark-blue mb-4">{selectedAnnouncement?.content}</p>
+                  <div className="d-flex justify-content-between align-items-center">
+                  <small className="text-muted">
+                    <i className="bi bi-calendar3 me-1"></i>
+                    {new Date(selectedAnnouncement?.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </small>
+                  <Button variant="secondary" onClick={handleCloseModal}>
+                    Close
+                  </Button>
+                  </div>
+                </Modal.Body>
+              </Modal>
 
               {/* Fourth Section - Contact Us */}
               <section className="contact-section vh-100 bg-light-blue d-flex align-items-center justify-content-center" id="contact">

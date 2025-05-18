@@ -1,0 +1,78 @@
+.announcement-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.announcement-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.announcement-image {
+  transition: transform 0.3s ease-in-out;
+  border-radius: 0.5rem;
+}
+
+.announcement-image:hover {
+  transform: scale(1.05);
+}
+
+.announcement-overlay {
+  background-color: white;
+  border-radius: 0.5rem;
+}
+
+.announcement-overlay .card-title {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.announcement-overlay .card-text {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.announcement-overlay .text-muted {
+  color: var(--text-secondary);
+}
+
+.announcement-overlay .btn-outline-primary {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Pagination */
+.announcement-modal {
+  .modal-header {
+    background-color: white;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .modal-body {
+    padding: 2rem;
+  }
+
+  .modal-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 2rem;
+  }
+
+  .announcement-modal-title {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .announcement-modal-content {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .announcement-modal-footer small {
+    color: var(--text-secondary);
+  }
+}
