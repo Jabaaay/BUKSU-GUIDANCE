@@ -41,11 +41,13 @@ const userSchema = new mongoose.Schema({
       validator: function(email) {
         if (this.role === 'student') {
           return email.endsWith('@student.buksu.edu.ph');
-        } else {
-          return email.endsWith('@student.buksu.edu.ph');
+        } else if (this.role === 'staff') {
+          return email.endsWith('@buksu.edu.ph');
+        } else if (this.role === 'admin') {
+          return email.endsWith('@buksu.edu.ph');
         }
       },
-      message: 'Only @student.buksu.edu.ph or @student.buksu.edu.ph email addresses are allowed'
+      message: 'Only @student.buksu.edu.ph or @buksu.edu.ph email addresses are allowed'
     }
   },
   birthday: {

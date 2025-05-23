@@ -291,15 +291,11 @@ function App() {
                       <div className="col-md-8 offset-md-2">
                         <div className="mb-3">
                           <i className="bi bi-geo-alt-fill me-2 text-dark-blue"></i>
-                          <span className="text-dark-blue">BUKSU Guidance Office, Bulacan State University</span>
-                        </div>
-                        <div className="mb-3">
-                          <i className="bi bi-telephone-fill me-2 text-dark-blue"></i>
-                          <span className="text-dark-blue">(044) 536-0000 loc 234</span>
+                          <span className="text-dark-blue">BUKSU Guidance Office, Bukidnon State University</span>
                         </div>
                         <div>
                           <i className="bi bi-envelope-fill me-2 text-dark-blue"></i>
-                          <span className="text-dark-blue">guidance@bulsu.edu.ph</span>
+                          <span className="text-dark-blue">guidance@buksu.edu.ph</span>
                         </div>
                       </div>
                     </div>

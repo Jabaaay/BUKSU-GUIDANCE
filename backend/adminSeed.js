@@ -13,7 +13,7 @@ const adminData = {
 async function seedAdmin() {
     try {
         console.log('Connecting to MongoDB...');
-        await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/buksu-guidance', {
+        await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://guidance:admin@guidance.1c293.mongodb.net/guidance?retryWrites=true&w=majority&appName=Guidance', {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });

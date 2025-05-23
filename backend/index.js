@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/buksu-guidance', {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://guidance:admin@guidance.1c293.mongodb.net/guidance?retryWrites=true&w=majority', {
 })
 .then(() => console.log('Connected to MongoDB'))
 .catch(err => console.error('MongoDB connection error:', err));
