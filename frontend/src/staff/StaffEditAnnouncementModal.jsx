@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Modal,
   Form,
@@ -9,16 +9,24 @@ import {
   Image
 } from 'react-bootstrap';
 import Swal from 'sweetalert2';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-function StaffAddAnnouncementModal({ show, handleClose }) {
-  const navigate = useNavigate();
+function StaffEditAnnouncementModal({ show, handleClose, announcement }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (announcement) {
+      setTitle(announcement.title);
+      setContent(announcement.content);
+      if (announcement.image) {
+        setImagePreview(announcement.image);
+      }
+    }
+  }, [announcement]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -70,8 +78,8 @@ function StaffAddAnnouncementModal({ show, handleClose }) {
         image: image ? image.name : 'No image'
       });
 
-      const response = await axios.post(
-        'http://localhost:5000/api/announcements',
+      const response = await axios.put(
+        `http://localhost:5000/api/announcements/${announcement._id}`,
         formData,
         {
           headers: {
@@ -86,7 +94,7 @@ function StaffAddAnnouncementModal({ show, handleClose }) {
       Swal.fire({
         icon: 'success',
         title: 'Success',
-        text: 'Announcement has been posted!',
+        text: 'Announcement has been updated!',
         confirmButtonColor: '#4e73df'
       });
 
@@ -97,10 +105,10 @@ function StaffAddAnnouncementModal({ show, handleClose }) {
       setImagePreview('');
       handleClose();
     } catch (error) {
-      console.error('Error posting announcement:', error.response?.data);
+      console.error('Error updating announcement:', error.response?.data);
       const errorMessage = error.response?.data?.message || 
         error.response?.data?.error || 
-        'Failed to post announcement. Please try again.';
+        'Failed to update announcement. Please try again.';
       
       Swal.fire({
         icon: 'error',
@@ -116,7 +124,7 @@ function StaffAddAnnouncementModal({ show, handleClose }) {
   return (
     <Modal show={show} onHide={handleClose} size="lg">
       <Modal.Header closeButton>
-        <Modal.Title>Post Announcement</Modal.Title>
+        <Modal.Title>Edit Announcement</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
@@ -177,7 +185,7 @@ function StaffAddAnnouncementModal({ show, handleClose }) {
               className="ms-2"
               disabled={loading}
             >
-              {loading ? 'Posting...' : 'Post Announcement'}
+              {loading ? 'Updating...' : 'Update Announcement'}
             </Button>
           </div>
         </Form>
@@ -186,4 +194,4 @@ function StaffAddAnnouncementModal({ show, handleClose }) {
   );
 }
 
-export default StaffAddAnnouncementModal;
+export default StaffEditAnnouncementModal;

@@ -44,6 +44,10 @@ const appointmentSchema = new mongoose.Schema({
   notes: {
     type: String
   },
+  termsAccepted: {
+    type: Boolean,
+    default: false
+  },
   createdAt: {
     type: Date,
     default: Date.now

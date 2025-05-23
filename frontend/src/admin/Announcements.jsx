@@ -21,6 +21,7 @@ function Announcements() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
   const [loading, setLoading] = useState(true);
+  
 
   useEffect(() => {
     fetchAnnouncements();
@@ -109,23 +110,27 @@ function Announcements() {
       </div>
     );
   }
+  
 
   return (
-    <div className="d-flex">
-      <AdminSidebar />
-      <div className="flex-grow-1">
+    <div className="container-fluid">
+      <Row>
+      <Col md={2} className="bg-primary text-white">
+                <AdminSidebar />
+              </Col>
+      <Col>
         <Container className="py-4">
           <Row className="mb-4">
             <Col>
               <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2>Announcements</h2>
                 <Button variant="primary" onClick={() => setShowAddModal(true)}>
-                  Add Announcement
+                  Post
                 </Button>
               </div>
 
               <Row className="g-4">
-                {announcements.map((announcement) => (
+                {announcements.filter(announcement => announcement.author.role === 'admin').map((announcement) => (
                   <Col xs={12} sm={6} md={4} lg={3} key={announcement._id}>
                     <Card className="h-100">
                       <Card.Body>
@@ -187,7 +192,8 @@ function Announcements() {
             onAnnouncementUpdated={fetchAnnouncements}
           />
         </Container>
-      </div>
+      </Col>
+      </Row>
     </div>
   );
 }

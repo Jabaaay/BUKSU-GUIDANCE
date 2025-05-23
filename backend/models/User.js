@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken'); // added jwt module
+const jwt = require('jsonwebtoken');
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -22,12 +22,12 @@ const userSchema = new mongoose.Schema({
   },
   firstName: {
     type: String,
-    required: [true, 'First name is required'],
+    required: function() { return this.role === 'student'; },
     trim: true
   },
   lastName: {
     type: String,
-    required: [true, 'Last name is required'],
+    required: function() { return this.role === 'student'; },
     trim: true
   },
   email: {
@@ -36,26 +36,47 @@ const userSchema = new mongoose.Schema({
     unique: true,
     trim: true,
     lowercase: true,
-    match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address']
+    match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address'],
+    validate: {
+      validator: function(email) {
+        if (this.role === 'student') {
+          return email.endsWith('@student.buksu.edu.ph');
+        } else {
+          return email.endsWith('@student.buksu.edu.ph');
+        }
+      },
+      message: 'Only @student.buksu.edu.ph or @student.buksu.edu.ph email addresses are allowed'
+    }
   },
   birthday: {
     type: Date,
-    required: [true, 'Birthday is required']
+    required: function() { return this.role === 'student'; }
   },
   age: {
     type: Number,
-    required: [true, 'Age is required'],
-    min: [18, 'Minimum age is 18'],
-    max: [100, 'Maximum age is 100']
+    required: function() { return this.role === 'student'; },
+    min: [18, 'Minimum age is 18']
   },
   college: {
     type: String,
-    required: [true, 'College is required'],
+    required: function() { return this.role === 'student'; },
     enum: ['COT', 'CAS', 'CPAG', 'CON', 'COE', 'COB', 'COL']
   },
   course: {
     type: String,
-    required: [true, 'Course is required']
+    required: function() { return this.role === 'student'; },
+    trim: true
+  },
+  position: {
+    type: String,
+    required: function() { 
+      return this.role === 'staff' || this.role === 'admin';
+    },
+    trim: true
+  },
+  googleId: {
+    type: String
+    
   }
 }, {
   timestamps: true

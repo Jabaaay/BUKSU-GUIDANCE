@@ -118,7 +118,11 @@ function AdminProfile() {
                     {user.role === 'student' ? (
                       <span className="text-primary">Student</span>
                     ) : (
-                      <span className="text-primary">Admin</span>
+                      user.role === 'staff' ? (
+                        <span className="text-primary">Staff</span>
+                      ) : (
+                        <span className="text-primary">Admin</span>
+                      )
                     )}
                   </span>
                 </Col>
@@ -127,25 +131,16 @@ function AdminProfile() {
                     <Card.Body>
                       <Card.Title>Personal Information</Card.Title>
                       <div className="mb-3">
-                        <strong>Student ID:</strong> {user.id}
+                        <strong>Staff ID:</strong> {user.id}
                       </div>
                       <div className="mb-3">
                         <strong>Email:</strong> {user.email}
                       </div>
                       <div className="mb-3">
-                        <strong>Full Name:</strong> {user.firstName} {user.lastName}
+                        <strong>Full Name:</strong> {user.firstName}
                       </div>
                       <div className="mb-3">
-                        <strong>Birthday:</strong> {new Date(user.birthday).toLocaleDateString()}
-                      </div>
-                      <div className="mb-3">
-                        <strong>Age:</strong> {user.age}
-                      </div>
-                      <div className="mb-3">
-                        <strong>College:</strong> {user.college}
-                      </div>
-                      <div className="mb-3">
-                        <strong>Course:</strong> {user.course}
+                        <strong>Role:</strong> {user.role}
                       </div>
                       <Button 
                         className='btn btn-info text-white btn-sm' 

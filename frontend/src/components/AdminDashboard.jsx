@@ -284,12 +284,13 @@ function AdminDashboard() {
                 <h5>Recent Appointments</h5>
               </Card.Title>
 
-              <Table>
+              <div className="table-responsive">
+              <Table className="table-sm">
                 <thead>
                   <tr>
                     <th>Student Name</th>
                     <th>College</th>
-                    <th>Concern</th>
+                    <th>Purpose</th>
                     <th>Date</th>
                     <th>Time</th>
                     <th>Status</th>
@@ -325,6 +326,7 @@ function AdminDashboard() {
                   
                 </tbody>
               </Table>
+              </div>
             </Card.Body>
           </Card>
 

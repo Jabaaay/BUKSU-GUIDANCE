@@ -54,7 +54,7 @@ exports.createAnnouncement = async (req, res) => {
 exports.getAnnouncements = async (req, res) => {
     try {
         const announcements = await Announcement.find()
-            .populate('author', 'name email')
+            .populate('author', 'email role')
             .sort({ createdAt: -1 });
         res.json(announcements);
     } catch (error) {
@@ -67,7 +67,7 @@ exports.getAnnouncements = async (req, res) => {
 exports.getAnnouncement = async (req, res) => {
     try {
         const announcement = await Announcement.findById(req.params.id)
-            .populate('author', 'name email');
+            .populate('author', 'email role');
         if (!announcement) {
             return res.status(404).json({ message: 'Announcement not found' });
         }

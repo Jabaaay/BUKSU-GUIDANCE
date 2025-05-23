@@ -5,17 +5,23 @@ const appointmentController = {
   // Create new appointment
   createAppointment: async (req, res) => {
     try {
-      const { type, purpose, date, time } = req.body;
+      const { type, purpose, date, time, termsAccepted } = req.body;
       const userId = req.user.id;
 
       console.log('Creating appointment for user:', userId);
-      console.log('Appointment data:', { type, purpose, date, time });
+      console.log('Appointment data:', { type, purpose, date, time, termsAccepted });
 
       // Check if user exists
       const user = await User.findById(userId);
       if (!user) {
         console.log('User not found:', userId);
         return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Validate terms acceptance
+      if (!termsAccepted) {
+        console.log('Terms not accepted');
+        return res.status(400).json({ message: 'You must agree to the Terms and Conditions to proceed' });
       }
 
       // Check if date is in the past
@@ -35,7 +41,8 @@ const appointmentController = {
         time,
         college: user.college,
         course: user.course,
-        name: user.firstName + ' ' + user.lastName
+        name: user.firstName + ' ' + user.lastName,
+        termsAccepted: termsAccepted
       });
 
       await appointment.save();
@@ -78,6 +85,14 @@ const appointmentController = {
 
       console.log('Updating appointment:', id);
       console.log('Updates:', updates);
+      console.log('User ID:', userId);
+
+      // Validate required fields
+      if (!updates.type || !updates.purpose || !updates.date || !updates.time) {
+        return res.status(400).json({ 
+          message: 'All fields (type, purpose, date, time) are required' 
+        });
+      }
 
       // Find appointment and check if it belongs to user
       const appointment = await Appointment.findById(id);
@@ -91,18 +106,26 @@ const appointmentController = {
         return res.status(403).json({ message: 'Not authorized' });
       }
 
-      // Update appointment
-      Object.assign(appointment, updates);
-      await appointment.save();
-      console.log('Appointment updated successfully:', id);
+      // Update appointment fields
+      appointment.type = updates.type;
+      appointment.purpose = updates.purpose;
+      appointment.date = new Date(updates.date);
+      appointment.time = updates.time;
+
+      // Save the updated appointment
+      const updatedAppointment = await appointment.save();
+      console.log('Appointment updated successfully:', updatedAppointment._id);
 
       res.json({
         message: 'Appointment updated successfully',
-        appointment
+        appointment: updatedAppointment
       });
     } catch (error) {
       console.error('Error updating appointment:', error);
-      res.status(400).json({ message: error.message });
+      res.status(400).json({ 
+        message: error.message || 'Failed to update appointment',
+        error: error.message 
+      });
     }
   },
 
@@ -208,6 +231,40 @@ const appointmentController = {
         message: 'Server error', 
         error: error.message 
       });
+    }
+  },
+
+  // Delete appointment
+  deleteAppointment: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+
+      console.log('Deleting appointment:', id);
+
+      // Find appointment and check if it belongs to user
+      const appointment = await Appointment.findById(id);
+      if (!appointment) {
+        console.log('Appointment not found:', id);
+        return res.status(404).json({ message: 'Appointment not found' });
+      }
+
+      if (String(appointment.user) !== userId) {
+        console.log('Unauthorized delete attempt for appointment:', id);
+        return res.status(403).json({ message: 'Not authorized' });
+      }
+
+      // Delete appointment
+      await appointment.deleteOne();
+      console.log('Appointment deleted successfully:', id);
+
+      res.json({
+        message: 'Appointment deleted successfully',
+        id
+      });
+    } catch (error) {
+      console.error('Error deleting appointment:', error);
+      res.status(500).json({ message: error.message });
     }
   }
 };

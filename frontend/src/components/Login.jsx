@@ -4,6 +4,7 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import '../App.css'
+import Swal from 'sweetalert2';
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -39,12 +40,41 @@ function Login() {
       
       // Redirect based on user role
       if (userRole === 'admin') {
+        Swal.fire({
+          icon: 'success',
+          title: 'Login successful',
+          text: 'You are now logged in as an admin',
+          showConfirmButton: false,
+          timer: 1500
+        });
         navigate('/admin/dashboard');
+      } else if (userRole === 'staff') {
+        Swal.fire({
+          icon: 'success',
+          title: 'Login successful',
+          text: 'You are now logged in as a staff',
+          showConfirmButton: false,
+          timer: 1500
+        });
+        navigate('/staff/dashboard');
       } else {
+        Swal.fire({
+          icon: 'success',
+          title: 'Login successful',
+          text: 'You are now logged in as a student',
+          showConfirmButton: false,
+          timer: 1500
+        });
         navigate('/dashboard');
       }
     } catch (error) {
-      setError(error.response?.data?.message || 'An error occurred');
+      Swal.fire({
+        icon: 'error',
+        title: 'Login failed',
+        text: error.response?.data?.message || 'An error occurred',
+        showConfirmButton: false,
+        timer: 1500
+      });
     } finally {
       setLoading(false);
     }

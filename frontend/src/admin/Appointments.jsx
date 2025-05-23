@@ -7,6 +7,9 @@ import {
   Container,
   Row,
   Col,
+  Dropdown,
+  Form,
+  Pagination
 } from 'react-bootstrap';
 import AdminSidebar from '../components/AdminSidebar';
 import AddAppointmentModal from '../components/AddAppointmentModal';
@@ -32,9 +35,22 @@ function Appointments() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
   const handleCloseModal = () => setShowModal(false);
   const handleShowModal = () => setShowModal(true);
+
+  // Filter appointments based on selected status
+  const filteredAppointments = appointments.filter(appointment => {
+    if (selectedStatus === 'all') return true;
+    return appointment.status === selectedStatus;
+  });
+
+  const handleStatusChange = (event) => {
+    setSelectedStatus(event.target.value);
+  };
 
   // Fetch appointments from backend
   useEffect(() => {
@@ -48,6 +64,7 @@ function Appointments() {
         });
         setAppointments(response.data);
         setLoading(false);
+        setTotalPages(Math.ceil(response.data.length / 10));
       } catch (error) {
         console.error('Error fetching appointments:', error);
         Swal.fire({
@@ -89,7 +106,10 @@ function Appointments() {
           Swal.fire({
             icon: 'success',
             title: 'Success',
-            text: 'Appointment accepted successfully'
+            text: 'Appointment accepted successfully',
+            timer: 2000,
+            timerProgressBar: true,
+            showConfirmButton: false
           });
         } catch (error) {
           console.error('Error accepting appointment:', error);
@@ -130,7 +150,10 @@ function Appointments() {
           Swal.fire({
             icon: 'success',
             title: 'Success',
-            text: 'Appointment rejected successfully'
+            text: 'Appointment rejected successfully',
+            timer: 2000,
+            timerProgressBar: true,
+            showConfirmButton: false
           });
         } catch (error) {
           console.error('Error rejecting appointment:', error);
@@ -144,6 +167,10 @@ function Appointments() {
     });
   };
 
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   if (loading) {
     return (
       <div className="d-flex flex-column align-items-center justify-content-center min-vh-100">
@@ -154,7 +181,8 @@ function Appointments() {
       </div>
     );
   }
-
+  
+  
   return (
     <div className="container-fluid">
       <Row>
@@ -171,54 +199,80 @@ function Appointments() {
               <Card.Title className="d-flex justify-content-between align-items-center">
                 <h5>Appointments</h5>
 
+
+                <Form.Select
+                  className="form-select w-25"
+                  value={selectedStatus}
+                  onChange={handleStatusChange}
+                >
+                  <option value="all">All</option>
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Approved</option>
+                  <option value="rejected">Rejected</option>
+                </Form.Select>
+
               </Card.Title>
 
               {/* Appointments Table */}
-              <Table>
+              <div className="table-responsive">
+              <Table className="table-sm">
                 <thead>
                   <tr>
                     <th>Student ID</th>
                     <th>Student Name</th>
                     <th>College</th>
                     <th>Course</th>
-                    <th>Concern</th>
+                    <th>Purpose</th>
                     <th>Date</th>
                     <th>Time</th>
                     <th>Status</th>
-                    <th>Actions</th>
+                    {selectedStatus === 'pending' && <th>Actions</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {/* fetch only the pending appointments */}
-                  {appointments.filter(appointment => appointment.status === 'pending').map((appointment) => (
+                  {filteredAppointments.slice((currentPage - 1) * 10, currentPage * 10).map((appointment, index) => (
                     <tr key={appointment._id}>
-                      <td>{appointment._id}
-                        
-                      </td>
-                      <td>{appointment.user.firstName} {appointment.user.lastName}</td>
-                      <td>{appointment.user.college}</td>
-                      <td>{appointment.user.course}</td>
+                      <td>{index + 1}</td>
+                      <td>{appointment.name}</td>
+                      <td>{appointment.college}</td>
+                      <td>{appointment.course}</td>
                       <td>
-                        {appointment.purpose === 'academic' ? (
-                          <span>Academic</span>
+                        {appointment.purpose === 'Academic Counseling' ? (
+                          <span>Academic Counseling</span>
+                        ) : appointment.purpose === 'Emotional Support' ? (
+                          <span>Emotional Support</span>
+                        ) : appointment.purpose === 'Career Guidance' ? (
+                          <span>Career Guidance</span>
+                        ) : appointment.purpose === 'Behavioral Concerns' ? (
+                          <span>Behavioral Concerns</span>
                         ) : (
-                          <span>Behavioral</span>
+                          <span>Others</span>
                         )}
                       </td>
-                      <td>{new Date(appointment.date).toLocaleDateString()}</td>
-                      <td>{appointment.time}</td>
                       <td>
-                        <span className={`badge bg-${appointment.status === 'pending' ? 'warning' : appointment.status === 'confirmed' ? 'success' : 'danger'}`}>
-                          {appointment.status === 'pending' ? (
-                          <span>Pending</span>
-                        ) : appointment.status === 'confirmed' ? (
-                          <span>Confirmed</span>
-                        ) : (
-                          <span>Declined</span>
-                        )}
+                        {new Date(appointment.date).toLocaleDateString('en-US', {
+                          month: 'long',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                      </td>
+                      <td>
+                        {appointment.time}
+                      </td>
+                      <td>
+                        <span className={`badge ${
+                          appointment.status === 'pending' ? 'bg-warning' :
+                          appointment.status === 'confirmed' ? 'bg-success' :
+                          'bg-danger'
+                        }`}>
+                          {appointment.status === 'pending' ? 'Pending' :
+                          appointment.status === 'confirmed' ? 'Approved' :
+                          'Rejected'
+                        }
                         </span>
                       </td>
-                      <td className="d-flex gap-2">
+                      {selectedStatus === 'pending' && <td className="d-flex gap-2">
                         {appointment.status === 'pending' && (
                           <>
                             <Button 
@@ -237,7 +291,7 @@ function Appointments() {
                             </Button>
                           </>
                         )}
-                      </td>
+                      </td>}
                       
                       
                     </tr>
@@ -247,6 +301,20 @@ function Appointments() {
                   
                 </tbody>
               </Table>
+              </div>
+              {appointments.length > 10 && ( // Only show pagination if there are more than 10 items
+                <Pagination className="mt-3">
+                  {[...Array(totalPages).keys()].map((pageNumber) => (
+                    <Pagination.Item 
+                      key={pageNumber} 
+                      active={pageNumber === currentPage - 1} 
+                      onClick={() => handlePageChange(pageNumber + 1)}
+                    >
+                      {pageNumber + 1}
+                    </Pagination.Item>
+                  ))}
+                </Pagination>
+              )}
             </Card.Body>
           </Card>
 

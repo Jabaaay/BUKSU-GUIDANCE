@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
@@ -78,13 +79,27 @@ function SignUp() {
     setLoading(true);
     setError('');
 
+    // Validate email format
+    const email = formData.email.toLowerCase();
+    if (!email.endsWith('@student.buksu.edu.ph')) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Email',
+        text: 'Only BUKSU student emails (@student.buksu.edu.ph) are allowed',
+        showConfirmButton: false,
+        timer: 2000
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await axios.post('http://localhost:5000/api/auth/register', {
         ...formData,
         username: formData.firstName.toLowerCase() + '.' + formData.lastName.toLowerCase(),
         firstName: formData.firstName,
         lastName: formData.lastName,
-        email: formData.email.toLowerCase(),
+        email: email,
         password: formData.password,
         birthday: formData.birthday,
         age: parseInt(formData.age),
@@ -94,9 +109,27 @@ function SignUp() {
 
       console.log('Registration successful:', response.data);
       navigate('/login');
+
+      // Show success alert
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Registration successful! Please login to continue.',
+        showConfirmButton: false,
+        timer: 2000
+      });
+
     } catch (err) {
       console.error('Registration error:', err);
       setError(err.response?.data?.message || 'An error occurred during registration');
+
+      // Show error alert
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error,
+        timer: 3000
+      });
     } finally {
       setLoading(false);
     }
@@ -108,12 +141,7 @@ function SignUp() {
         <div className="card shadow">
           <div className="card-body">
             <h2 className="card-title text-center mb-4 text-dark-blue">Sign Up</h2>
-            
-            {error && (
-              <div className="alert alert-danger" role="alert">
-                {error}
-              </div>
-            )}
+          
 
             <form onSubmit={handleSubmit}>
               {/* First Name */}

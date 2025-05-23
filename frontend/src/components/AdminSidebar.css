@@ -6,6 +6,40 @@
     text-align: left;
     
   }
+
+  /* Add to AdminSidebar.css */
+.nav-link {
+  color: white !important;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link.active {
+  background-color: rgba(0, 0, 0, 0.2);
+  color: white !important;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
+.nav-link.active i {
+  color: white !important;
+}
+
+/* Add some spacing between links */
+.nav-link:not(:last-child) {
+  margin-bottom: 0.5rem;
+}
+
+/* Style for the logout link */
+.nav-link:last-child {
+  margin-top: auto;
+  margin-bottom: 1rem;
+}
   
   
   

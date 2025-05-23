@@ -12,6 +12,6 @@ router.put('/:id/reject', auth, appointmentController.rejectAppointment);
 router.get('/', auth, appointmentController.getUserAppointments);
 router.post('/', auth, appointmentController.createAppointment);
 router.put('/:id', auth, appointmentController.updateAppointment);
-router.delete('/:id', auth, appointmentController.cancelAppointment);
+router.delete('/:id', auth, appointmentController.deleteAppointment);  // Updated to use deleteAppointment
 
 module.exports = router;

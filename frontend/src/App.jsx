@@ -25,9 +25,13 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import './App.css'
 import './styles/announcements.css'
 import axios from 'axios';
+import ProtectedRoute from './components/ProtectedRoute';
+import Swal from 'sweetalert2';
 
 function App() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
 
   const [announcements, setAnnouncements] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -51,6 +55,7 @@ function App() {
 
   useEffect(() => {
     fetchAnnouncements();
+    setLoading(false);
   }, []);
 
   const handlePageChange = (pageNumber) => {
@@ -69,6 +74,17 @@ function App() {
   const handleCloseModal = () => {
     setShowModal(false);
   };
+
+  if (loading) {
+    return (
+      <div className="d-flex flex-column align-items-center justify-content-center min-vh-100">
+        <div className="spinner-border text-primary" role="status" style={{ width: '5rem', height: '5rem' }}>
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <h4 className="mt-3 text-primary">Loading...</h4>
+      </div>
+    );
+  }
 
   return (
     <div className="min-vh-100">
@@ -307,21 +323,101 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/history" element={<History />} />
-        <Route path="/calendar" element={<Calendar />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path='/admin/appointments' element={<Appointments />} />
-        <Route path='/admin/staff' element={<AddStaff />} />
-        <Route path='/admin/profile' element={<AdminProfile />} />
-        <Route path='/admin/reports' element={<AdminReports />} />
-        <Route path='/admin/announcements' element={<Announcements />} />
-        <Route path='/staff/appointments' element={<StaffAppointments />} />
-        <Route path='/staff/dashboard' element={<StaffDashboard />} />
-        <Route path='/staff/profile' element={<StaffProfile />} />
-        <Route path='/staff/reports' element={<StaffReports />} />
-        <Route path='/staff/announcements' element={<StaffAnnouncements />} />
+        
+        {/* Student routes */}
+        <Route path="/dashboard" element={
+          <ProtectedRoute allowedRoles={['student']}>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/history" element={
+          <ProtectedRoute allowedRoles={['student']}>
+            <History />
+          </ProtectedRoute>
+        } />
+        <Route path="/calendar" element={
+          <ProtectedRoute allowedRoles={['student']}>
+            <Calendar />
+          </ProtectedRoute>
+        } />
+        <Route path="/profile" element={
+          <ProtectedRoute allowedRoles={['student']}>
+            <Profile />
+          </ProtectedRoute>
+        } />
+
+        {/* Admin routes */}
+        <Route path="/admin/dashboard" element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path='/admin/appointments' element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Appointments />
+          </ProtectedRoute>
+        } />
+        <Route path='/admin/staff' element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AddStaff />
+          </ProtectedRoute>
+        } />
+        <Route path='/admin/profile' element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminProfile />
+          </ProtectedRoute>
+        } />
+        <Route path='/admin/reports' element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminReports />
+          </ProtectedRoute>
+        } />
+        <Route path='/admin/announcements' element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Announcements />
+          </ProtectedRoute>
+        } />
+
+        {/* Staff routes */}
+        <Route path='/staff/appointments' element={
+          <ProtectedRoute allowedRoles={['staff']}>
+            <StaffAppointments />
+          </ProtectedRoute>
+        } />
+        <Route path='/staff/dashboard' element={
+          <ProtectedRoute allowedRoles={['staff']}>
+            <StaffDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path='/staff/profile' element={
+          <ProtectedRoute allowedRoles={['staff']}>
+            <StaffProfile />
+          </ProtectedRoute>
+        } />
+        <Route path='/staff/reports' element={
+          <ProtectedRoute allowedRoles={['staff']}>
+            <StaffReports />
+          </ProtectedRoute>
+        } />
+        <Route path='/staff/announcements' element={
+          <ProtectedRoute allowedRoles={['staff']}>
+            <StaffAnnouncements />
+          </ProtectedRoute>
+        } />
+
+        {/* Unauthorized route */}
+        <Route path="/unauthorized" element={
+          <div className="container mt-5">
+            <div className="alert alert-danger">
+              <h4>Unauthorized Access</h4>
+              <p>You do not have permission to enter the life of my idol</p>
+              <p></p> 
+              <button className="btn btn-primary" onClick={() => navigate(-1)}>
+               <i className="bi bi-arrow-left"></i> Back
+              </button>
+            </div>
+          </div>
+        } />
       </Routes>
     </div>
   )

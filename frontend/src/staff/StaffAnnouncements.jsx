@@ -1,158 +1,203 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Card,
   Button,
-  Table,
   Container,
   Row,
   Col,
+  Image
 } from 'react-bootstrap';
 import StaffSidebar from './StaffSidebar';
 import StaffAddAnnouncementModal from './StaffAddAnnouncementModal';
-import { Chart as ChartJS, ArcElement, BarElement, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import StaffEditAnnouncementModal from './StaffEditAnnouncementModal';
 import Swal from 'sweetalert2';
-// Register Chart.js components
-ChartJS.register(
-  ArcElement,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
-
-
-// Mock data for appointments
-const mockAppointments = [
-  {
-    id: 1,
-    title: 'Counseling Workshop Schedule',
-    content: 'Join our stress management workshop on May 25, 2025. Limited slots available!',
-    image: 'https://images.unsplash.com/photo-1511485977113-f34c92461ad9?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80',
-    date: '2025-05-17',
-  },
-  {
-    id: 2,
-    title: 'Guidance Services Update',
-    content: 'Walk-in counseling sessions are available Monday to Friday, 8:00 AM - 5:00 PM. ',
-    image: 'https://images.unsplash.com/photo-1511485977113-f34c92461ad9?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80',
-    date: '2025-05-15',
-  },
-  {
-    id: 2,
-    title: 'Guidance Services Update',
-    content: 'Walk-in counseling sessions are available Monday to Friday, 8:00 AM - 5:00 PM.',
-    image: 'https://images.unsplash.com/photo-1511485977113-f34c92461ad9?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80',
-    date: '2025-05-15',
-  },
-  {
-    id: 2,
-    title: 'Guidance Services Update',
-    content: 'Walk-in counseling sessions are available Monday to Friday, 8:00 AM - 5:00 PM.',
-    image: 'https://images.unsplash.com/photo-1511485977113-f34c92461ad9?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80',
-    date: '2025-05-15',
-  }
-];
-
+import axios from 'axios';
 
 function StaffAnnouncements() {
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false);
+  const [announcements, setAnnouncements] = useState([]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleCloseModal = () => setShowModal(false);
-  const handleShowModal = () => setShowModal(true);
+  useEffect(() => {
+    fetchAnnouncements();
+  }, []);
 
-  const handleDelete = (id) => {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'You won\'t be able to revert this!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'No, cancel!',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Here you would typically call your API to delete the announcement
-        Swal.fire(
-          'Deleted!',
-          'Your announcement has been deleted.',
-          'success'
-        );
-      }
-    });
+  const fetchAnnouncements = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        'http://localhost:5000/api/announcements',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      setAnnouncements(response.data);
+    } catch (error) {
+      console.error('Error fetching announcements:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to fetch announcements',
+        confirmButtonColor: '#4e73df'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleDelete = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#4e73df',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      });
+
+      if (result.isConfirmed) {
+        await axios.delete(
+          `http://localhost:5000/api/announcements/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          text: 'Announcement has been deleted.',
+          confirmButtonColor: '#4e73df'
+        });
+
+        fetchAnnouncements();
+      }
+    } catch (error) {
+      console.error('Error deleting announcement:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.message || 'Failed to delete announcement',
+        confirmButtonColor: '#4e73df'
+      });
+    }
+  };
+
+  const handleEdit = (announcement) => {
+    setSelectedAnnouncement(announcement);
+    setShowEditModal(true);
+  };
+
+  if (loading) {
+    return (
+      <div className="d-flex flex-column align-items-center justify-content-center min-vh-100">
+        <div className="spinner-border text-primary" role="status" style={{ width: '5rem', height: '5rem' }}>
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // filter the announcement base on the author
+  
 
   return (
     <div className="container-fluid">
-      <Row> 
-        {/* Sidebar Column */}
-        <Col md={2} className="bg-primary text-white">
-          <StaffSidebar />
-        </Col>
+      <Row>
+      <Col md={2} className="bg-primary text-white">
+                <StaffSidebar />
+              </Col>
+      <Col>
+        <Container className="py-4">
+          <Row className="mb-4">
+            <Col>
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <h2>Announcements</h2>
+                <Button variant="primary" onClick={() => setShowAddModal(true)}>
+               Post
+                </Button>
+              </div>
 
+              <Row className="g-4">
                 
-                <Col>
-                <div className="p-4 bg-white rounded justify-content-between d-flex align-items-center">
-                  <h2 className="mb-4">Announcements</h2>
-                  <Button
-                    variant="primary"
-                    onClick={() => setShowModal(true)}
-                    className="mb-3"
-                  >
-                    <i className="bi bi-plus-circle me-2"></i>Post
-                  </Button>
-                  </div>
-        
-                  <Row>
-                    {mockAppointments.map((announcement) => (
-                      <Col md={6} lg={4} key={announcement.id} className="mb-4">
-                        <Card>
-                          <Card.Img
-                            variant="top"
-                            src={announcement.image}
-                            className="rounded-top"
-                            style={{ 
-                              height: '400px',
-                              width: '100%',
-                              objectFit: 'cover',
-                              display: 'block'
-                            }}
+              {announcements.filter(announcement => announcement.author.role === 'staff').map((announcement) => (
+                  <Col xs={12} sm={6} md={4} lg={3} key={announcement._id}>
+                    <Card className="h-100">
+                      <Card.Body>
+                        {announcement.image && (
+                          <Image
+                            src={`http://localhost:5000${announcement.image}`}
+                            alt={announcement.title}
+                            fluid
+                            rounded
+                            className="mb-3"
+                            style={{ maxHeight: '', objectFit: 'cover' }}
                           />
-                          <Card.Body>
-                            <Card.Title>{announcement.title}</Card.Title>
-                            <Card.Text>{announcement.content}</Card.Text>
-                            <div className="d-flex justify-content-between align-items-center">
-                              <small className="text-muted">
-                                {new Date(announcement.date).toLocaleDateString()}
-                              </small>
-                              <Button
-                                variant="danger"
-                                size="sm"
-                                onClick={() => handleDelete(announcement.id)}
-                              >
-                                <i className="bi bi-trash me-1"></i>Delete
-                              </Button>
-                            </div>
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                    ))}
-                  </Row>
-                </Col>
-        
-              <StaffAddAnnouncementModal
-                show={showModal}
-                handleClose={() => setShowModal(false)}
-              />
+                        )}
+                        <Card.Title className="mb-2">{announcement.title}</Card.Title>
+                        <Card.Text className="mb-3">{announcement.content}</Card.Text>
+                        <div className="d-flex justify-content-between align-items-center">
+                          <small className="text-muted">
+                            {new Date(announcement.createdAt).toLocaleDateString()}
+                          </small>
+                          <div>
+                            <Button
+                              variant="warning"
+                              size="sm"
+                              onClick={() => handleEdit(announcement)}
+                              className="me-2"
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="danger"
+                              size="sm"
+                              onClick={() => handleDelete(announcement._id)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                ))}
               </Row>
+            </Col>
+          </Row>
+
+          <StaffAddAnnouncementModal
+            show={showAddModal}
+            handleClose={() => setShowAddModal(false)}
+            onAnnouncementCreated={fetchAnnouncements}
+          />
+
+          <StaffEditAnnouncementModal
+            show={showEditModal}
+            handleClose={() => {
+              setShowEditModal(false);
+              setSelectedAnnouncement(null);
+            }}
+            announcement={selectedAnnouncement}
+            onAnnouncementUpdated={fetchAnnouncements}
+          />
+        </Container>
+      </Col>
+      </Row>
     </div>
   );
 }
 
-export default StaffAnnouncements;  
+export default StaffAnnouncements;

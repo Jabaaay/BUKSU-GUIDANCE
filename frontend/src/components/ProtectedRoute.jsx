@@ -1,25 +1,20 @@
-import React from 'react';
+// Create a new file: src/components/ProtectedRoute.jsx
 import { Navigate } from 'react-router-dom';
 
-const ProtectedRoute = ({ children, role }) => {
-  // Get token from localStorage
-  const token = localStorage.getItem('token');
+function ProtectedRoute({ children, allowedRoles }) {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-  if (!token) {
-    return <Navigate to="/login" />;
+  
+  // If no user is logged in, redirect to login
+  if (!user) {
+    return <Navigate to="/login" replace />;
   }
 
-  // Check if user has the required role
-  if (role === 'admin' && user.role !== 'admin') {
-    return <Navigate to="/dashboard" />;
-  }
-
-  if (role === 'student' && user.role !== 'student') {
-    return <Navigate to="/admin/dashboard" />;
+  // If user exists but role is not allowed, redirect to unauthorized page
+  if (!allowedRoles.includes(user.role)) {
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return children;
-};
+}
 
 export default ProtectedRoute;

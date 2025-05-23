@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');  
 const emailRoutes = require('./routes/email');
 const announcementRoutes = require('./routes/announcementRoutes');
+const staffRoutes = require('./routes/staffRoutes');
 const app = express();
 
 // Middleware
@@ -24,6 +25,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/announcements', announcementRoutes);
+app.use('/api/staff', staffRoutes);
 
 // Serve uploaded files
 app.use('/uploads', express.static('uploads'));
